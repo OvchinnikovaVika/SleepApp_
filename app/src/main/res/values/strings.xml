@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Sleep App</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="logoText">ПРО сон</string>
+    <string name="fieldFileText">Введите путь к файлу *.csv</string>
+    <string name="mesErrorNoFileText">Заполните путь к файлу</string>
+    <string name="btnLoadFile">Загрузить файл</string>
+    <string name="btnChangeFile">Преобразовать файл</string>
+    <string name="fieldTable">Введите ссылку на таблицу из Google Таблиц</string>
+    <string name="btnLoadData">Загрузить данные</string>
+    <string name="resultInfo">Результат</string>
+</resources>
