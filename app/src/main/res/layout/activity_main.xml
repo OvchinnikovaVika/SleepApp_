@@ -118,7 +118,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
             android:text="@string/resultInfo"
-            android:layout_marginTop="50sp"
+            android:layout_marginTop="40sp"
             android:textAlignment="center"
             android:textColor="#D58585"
             android:textSize="10sp"
