@@ -46,10 +46,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -178,10 +180,25 @@ public class MainActivity extends AppCompatActivity {
                             // Может лучше выделить в функцию
                         // Надо перевести строки в даты, понять какой нужен формат,
                         // формат - "16-мар.-2022 00:00"
-                        // использовать DateTimeFormatter или SimpleDateFormat?
-                        String dateStart = fieldDateStart.getText().toString(); // Получить начало периода
-                        String dateEnd = fieldDateEnd.getText().toString(); // Получить конец периода
-                        // - Вика  19.03.2022 Обработка полей начало периода и окончание периода
+
+                        // Получить начало периода
+
+                        Date dateStart;
+                        Date dateEnd;
+                            try {
+                                dateStart = new SimpleDateFormat("dd-MMM.-yyyy HH:mm",
+                                        Locale.getDefault()).parse(fieldDateStart.getText().toString());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            // Получить конец периода
+                            try {
+                                dateEnd = new SimpleDateFormat("dd-MMM.-yyyy HH:mm",
+                                        Locale.getDefault()).parse(fieldDateEnd.getText().toString());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            // - Вика  19.03.2022 Обработка полей начало периода и окончание периода
 
                         new GetFileData().execute(fileName); // Считать данные из файла *.csv
                         new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
