@@ -62,38 +62,12 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import com.example.sleepapp.DataModel;
 
-import javax.activation.DataHandler;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.activation.FileDataSource;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
+
 import java.util.Properties;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -268,35 +242,58 @@ public class MainActivity extends AppCompatActivity {
 
     public void getDataFromFile(){
 
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(
-                        new InputStreamReader(getAssets().open("numbers.csv")));
 
-                // выполняется чтение, цикл до последней строки файла
-                String mLine;
-                while ((mLine = reader.readLine()) != null) {
-                    System.out.format("%s ", mLine);
+        try (BufferedReader reader = new BufferedReader(new FileReader("BabyRecords.csv"));
+             BufferedWriter writer = new BufferedWriter(new FileWriter("son.csv"))) {
+
+            String line;
+            String son = "Сон";
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                String flName = line.substring(1,4);
+
+                if (flName.equals(son)) {
+                    writer.write(line + "\n");
                 }
-                // файл только с"Сон"
-                // файл записываться будет во временное приложения
-                // файл только с "Сон" и датами начала и конца
-                //
 
-                // Не реализовано
-                // Считать данные из файла в какой-то массив
             }
-             catch (IOException e) {
-                    // обработка исключения
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            // обработка исключения
-                        }
-                    }
-                }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//            BufferedReader reader = null;
+//            try {
+//                reader = new BufferedReader(
+//                        new InputStreamReader(getAssets().open("numbers.csv")));
+//
+//                // выполняется чтение, цикл до последней строки файла
+//                String mLine;
+//                while ((mLine = reader.readLine()) != null) {
+//                    System.out.format("%s ", mLine);
+//                }
+//                // файл только с"Сон"
+//                // файл записываться будет во временное приложения
+//                // файл только с "Сон" и датами начала и конца
+//                //
+//
+//                // Не реализовано
+//                // Считать данные из файла в какой-то массив
+//            }
+//             catch (IOException e) {
+//                    // обработка исключения
+//                } finally {
+//                    if (reader != null) {
+//                        try {
+//                            reader.close();
+//                        } catch (IOException e) {
+//                            // обработка исключения
+//                        }
+//                    }
+//                }
 
     }
     // заполнение строки (rowNum) определенного листа (sheet)
