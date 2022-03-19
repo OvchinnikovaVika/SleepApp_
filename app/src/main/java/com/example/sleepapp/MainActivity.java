@@ -45,6 +45,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -101,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText fieldTable;
     private Button btnLoadData;
     private TextView result_info;
+    // + Вика  19.03.2022 Добавлены поля даты начала и даты окончания
+    private EditText fieldDateStart;
+    private EditText fieldDateEnd;
+    // - Вика  19.03.2022 Добавлены поля даты начала и даты окончания
 
 
     @Override
@@ -113,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
         // + Вика  19.03.2022 Добавление комментариев
         // Инициализация элементов
         fieldFile = findViewById(R.id.fieldFile);
+
+        // + Вика  19.03.2022 Инициализация поля даты начала и даты окончания
+        fieldDateStart = findViewById(R.id.fieldDateStart);
+        fieldDateEnd = findViewById(R.id.fieldDateEnd);
+        // - Вика  19.03.2022 Инициализация поля даты начала и даты окончания
+
         btnLoadFile = findViewById(R.id.btnLoadFile);
         btnChangeFile = findViewById(R.id.btnChangeFile);
         fieldTable = findViewById(R.id.fieldTable);
@@ -142,20 +153,41 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // + Вика  19.03.2022 Добавление комментариев
-                // Не заполнена строка с именем файла
-               if(fieldFile.getText().toString().trim().equals(""))
-                   Toast.makeText(MainActivity.this,R.string.mesErrorNoFileText,Toast.LENGTH_SHORT).show();
-                   // - Вика  19.03.2022 Добавление комментариев
-                   // Не заполнена строка с именем файла
-               else {
+                // + Вика  19.03.2022 Проверка на незаполненные даты
+                if(fieldDateStart.getText().toString().trim().equals("")
+                    || fieldDateEnd.getText().toString().trim().equals(""))
 
-                   String fileName = fieldFile.getText().toString(); // Получить имя файла
-                   String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
+                        Toast.makeText(MainActivity.this,
+                                R.string.mesErrorNoDateStartEnd,
+                                Toast.LENGTH_SHORT).show();
+                else {
+                        // + Вика  19.03.2022 Добавление комментариев
+                        // Не заполнена строка с именем файла или датой начала или датой конца
+                        if (fieldFile.getText().toString().trim().equals(""))
+                            Toast.makeText(MainActivity.this,
+                                    R.string.mesErrorNoFileText,
+                                    Toast.LENGTH_SHORT).show();
+                        // - Вика  19.03.2022 Добавление комментариев
+                        // Не заполнена строка с именем файла
+                    else {
 
-                   new GetFileData().execute(fileName); // Считать данные из файла *.csv
-                   new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
-               }
+                        String fileName = fieldFile.getText().toString(); // Получить имя файла
+                        String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
+
+                        // + Вика  19.03.2022 Обработка полей начало периода и окончание периода
+                            // Может лучше выделить в функцию
+                        // Надо перевести строки в даты, понять какой нужен формат,
+                        // формат - "16-мар.-2022 00:00"
+                        // использовать DateTimeFormatter или SimpleDateFormat?
+                        String dateStart = fieldDateStart.getText().toString(); // Получить начало периода
+                        String dateEnd = fieldDateEnd.getText().toString(); // Получить конец периода
+                        // - Вика  19.03.2022 Обработка полей начало периода и окончание периода
+
+                        new GetFileData().execute(fileName); // Считать данные из файла *.csv
+                        new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
+                    }
+                    // - Вика  19.03.2022 Проверка на незаполненные даты
+                }
             }
         });
 
@@ -229,6 +261,10 @@ public class MainActivity extends AppCompatActivity {
                 while ((mLine = reader.readLine()) != null) {
                     System.out.format("%s ", mLine);
                 }
+                // файл только с"Сон"
+                // файл записываться будет во временное приложения
+                // файл только с "Сон" и датами начала и конца
+                //
 
                 // Не реализовано
                 // Считать данные из файла в какой-то массив
