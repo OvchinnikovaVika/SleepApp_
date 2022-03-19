@@ -110,14 +110,16 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //инициализация
+        // + Вика  19.03.2022 Добавление комментариев
+        // Инициализация элементов
         fieldFile = findViewById(R.id.fieldFile);
         btnLoadFile = findViewById(R.id.btnLoadFile);
         btnChangeFile = findViewById(R.id.btnChangeFile);
         fieldTable = findViewById(R.id.fieldTable);
         btnLoadData = findViewById(R.id.btnLoadData);
         result_info = findViewById(R.id.result_info);
-        //
+        // Инициализация элементов
+        // - Вика  19.03.2022 Добавление комментариев
 
 
 
@@ -139,17 +141,20 @@ public class MainActivity extends AppCompatActivity {
         btnLoadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // + Вика  19.03.2022 Добавление комментариев
+                // Не заполнена строка с именем файла
                if(fieldFile.getText().toString().trim().equals(""))
                    Toast.makeText(MainActivity.this,R.string.mesErrorNoFileText,Toast.LENGTH_SHORT).show();
+                   // - Вика  19.03.2022 Добавление комментариев
+                   // Не заполнена строка с именем файла
                else {
-                   String fileT = fieldFile.getText().toString();
-                   String key = "true&sd=true";
-                   String nameTable = fieldTable.getText().toString();
-                   nameTable = "1MUah4CHdXSDhPtY6tT2xPJdUMK5DBW1H";
-                   String url = "https://drive.google.com/file/d/1MUah4CHdXSDhPtY6tT2xPJdUMK5DBW1H/view?usp=sharing";
-                           //"https://docs.google.com/spreadsheets/d/" + nameTable + "/edit?usp=sharing&ouid=111352352244330456557&rtpof=" + key;
 
-                   new GetURLData().execute(url);
+                   String fileName = fieldFile.getText().toString(); // Получить имя файла
+                   String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
+
+                   new GetFileData().execute(fileName); // Считать данные из файла *.csv
+                   new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
                }
             }
         });
@@ -157,212 +162,86 @@ public class MainActivity extends AppCompatActivity {
         //alt+Enter на EditText чтобы импортировать класс
     }
 
-    private class GetURLData extends AsyncTask<String, String, String> {
+    // + Вика  19.03.2022 Добавление комментариев
+    // Считать данные из файла *.csv
+    // - Вика  19.03.2022 Добавление комментариев
+    private class GetFileData extends AsyncTask<String, String, String> {
+
 
         protected void onPreExecute(){
             super.onPreExecute();
-            result_info.setText("Ожидайте...");
+            result_info.setText("Ожидайте, идёт считывание данных...");
         }
         @Override
         protected String doInBackground(String... strings) {
-            HttpURLConnection connectionSite = null;
-            BufferedReader reader = null;
 
-            try {
-                test();
-                // Пример данных
+            // + Вика  19.03.2022 Добавление комментариев
+            // Пример данных
+            // (Категория, запятая, дата и время начала, запятая, дата и время окончания)
+            // ("Сон", ",", "14-февр.-2022 23:23",",","15-февр.-2022 01:52","\n"),
+            // Считать данные из файла *.csv
+            // - Вика  19.03.2022 Добавление комментариев
+            getDataFromFile(); // Получить данные из файла *.csv
 
-                //Arrays.asList("Сон", ",", "14-февр.-2022 23:23",",","15-февр.-2022 01:52","\n"),
+            return "result";
 
-                URL urlConnection = new URL(strings[0]); // Создать ссылку на соединение
-                connectionSite = (HttpURLConnection) urlConnection.openConnection();
-                connectionSite.connect();
-
-                InputStream stream = connectionSite.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                StringBuffer buffer = new StringBuffer();
-                String line = "";
-
-                while ((line= reader.readLine()) != null)
-                    buffer.append(line).append("/n");
-
-                return buffer.toString();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if(connectionSite != null)
-                    connectionSite.disconnect();
-
-                try {
-                    if(reader != null)
-                        reader.close();
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-            }
-            return null;
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute((result));
-            //result_info.setText(result);
+            result_info.setText(result); // Изменение текста в панели информации
+        }
+    }
+    private class LoadDataInTable extends AsyncTask<String, String, String> {
+
+        protected void onPreExecute(){
+            super.onPreExecute();
+            result_info.setText("Ожидайте, идёт загрузка...");
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+
+            loadDataInTableXLS(); // Загрузить данные из файла в таблицу
+
+            return "result";
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute((result));
+            result_info.setText(result); // Изменение текста в панели информации
         }
     }
 
-    public void test(){
-        String[] stringArray = {"a","b","c","d","e","f","g","h","t","k","k","k","l","k"};
+    public void getDataFromFile(){
 
             BufferedReader reader = null;
             try {
                 reader = new BufferedReader(
                         new InputStreamReader(getAssets().open("numbers.csv")));
 
-                // do reading, usually loop until end of file reading
+                // выполняется чтение, цикл до последней строки файла
                 String mLine;
                 while ((mLine = reader.readLine()) != null) {
                     System.out.format("%s ", mLine);
                 }
-                // создание самого excel файла в памяти
-                HSSFWorkbook workbook = new HSSFWorkbook();
-                // создание листа с названием "Просто лист"
-                HSSFSheet sheet = workbook.createSheet("Просто лист");
 
-                // заполняем список какими-то данными
-                List<DataModel> dataList = fillData();
-
-                // счетчик для строк
-                int rowNum = 0;
-
-                // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
-                Row row = sheet.createRow(rowNum);
-                row.createCell(0).setCellValue("Имя");
-                row.createCell(1).setCellValue("Фамилия");
-                row.createCell(2).setCellValue("Город");
-                row.createCell(3).setCellValue("Зарплата");
-
-                // заполняем лист данными
-                for (DataModel dataModel : dataList) {
-                    createSheetHeader(sheet, ++rowNum, dataModel);
-                }
-                String filename = "Apache_POI_.xls";
-                //File file = new File(getFilesDir(), filename);
-                // записываем созданный в памяти Excel документ в файл
-                /*String folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-                String name_pic = "picture.png";
-                //FileOutputStream output = new FileOutputStream(root+"/downloadedfile.jpg");
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{AndroidManifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1);*/
-               //try (FileOutputStream out = new FileOutputStream(new File("C:\\Users\\vika\\AndroidStudioProjects\\SleepApp\\app\\src\\main\\assets\\Apache_POI_.xls"))) {
-                //writeFileSD()
-                final String LOG_TAG = "myLogs";
-                final String DIR_SD = "MyFiles";
-                final String FILENAME_SD = "fileSD";
-
-                String FILE_PATH = getFilesDir().getAbsolutePath();
-                try {
-
-                    File file = new File(FILE_PATH);
-                    FileOutputStream stream = new FileOutputStream(file);
-                    workbook.write(stream);
-                    stream.close();
-                } catch (Exception e) {
-
-                }
-                try {
-                    // отрываем поток для записи
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(openFileOutput(filename, MODE_PRIVATE)));
-                    // пишем данные
-                    bw.write("Содержимое файла");
-                    // закрываем поток
-                    bw.close();
-                    Log.d(LOG_TAG, "Файл записан");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                final String fromEmail = "gimnastvika@gmail.com"; //requires valid gmail id
-                final String password = "ovv166-2016"; // correct password for gmail id
-                final String toEmail = "gimnast-96@mail.ru"; // can be any email id
-
-                System.out.println("SSLEmail Start");
-                Properties props = new Properties();
-                props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
-                props.put("mail.smtp.socketFactory.port", "465"); //SSL Port
-                props.put("mail.smtp.socketFactory.class",
-                        "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
-                props.put("mail.smtp.auth", "true"); //Enabling SMTP Authentication
-                props.put("mail.smtp.port", "465"); //SMTP Port
-
-                Authenticator auth = new Authenticator() {
-                    //override the getPasswordAuthentication method
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(fromEmail, password);
-                    }
-                };
-
-                Session session = Session.getDefaultInstance(props, auth);
-                System.out.println("Session created");
-                sendEmail(session, toEmail,"SSLEmail Testing Subject", "SSLEmail Testing Body");
-
-                    /*// проверяем доступность SD
-                    if (!Environment.getExternalStorageState().equals(
-                            Environment.MEDIA_MOUNTED)) {
-                        Log.d(LOG_TAG, "SD-карта не доступна: " + Environment.getExternalStorageState());
-                        return;
-                    }
-                    // получаем путь к SD
-                    File sdPath = Environment.getExternalStorageDirectory();
-                    // добавляем свой каталог к пути
-                    sdPath = new File(sdPath.getAbsolutePath() + "/" + DIR_SD);
-                    // создаем каталог
-                    sdPath.mkdirs();
-                    // формируем объект File, который содержит путь к файлу
-                    File sdFile = new File(sdPath, FILENAME_SD);
-                    try {
-                        // открываем поток для записи
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(sdFile));
-                        // пишем данные
-                        bw.write("Содержимое файла на SD");
-
-                        // закрываем поток
-                        bw.close();
-                        Log.d(LOG_TAG, "Файл записан на SD: " + sdFile.getAbsolutePath());
-                        result_info.setText("Файл записан на SD");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
-
-                /*try (FileOutputStream out = new FileOutputStream(sdFile)) {
-
-                    workbook.write(out);
-                    System.out.println("Excel файл успешно создан!");
-                    result_info.setText("Готово...");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
-
+                // Не реализовано
+                // Считать данные из файла в какой-то массив
             }
-
-         catch (IOException e) {
-                //log the exception
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        //log the exception
+             catch (IOException e) {
+                    // обработка исключения
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            // обработка исключения
+                        }
                     }
                 }
-            }
-            //ReadCSVWithScanner.main(stringArray);
 
     }
     // заполнение строки (rowNum) определенного листа (sheet)
@@ -386,61 +265,71 @@ public class MainActivity extends AppCompatActivity {
 
         return dataModels;
     }
-    public class EmailAuthenticator extends javax.mail.Authenticator
-    {
-        private String login   ;
-        private String password;
-        public EmailAuthenticator (final String login, final String password)
-        {
-            this.login    = login;
-            this.password = password;
-        }
-        public PasswordAuthentication getPasswordAuthentication()
-        {
-            return new PasswordAuthentication(login, password);
-        }
-    }
-    private MimeBodyPart createFileAttachment(String filepath)
-            throws MessagingException
-    {
-        // Создание MimeBodyPart
-        MimeBodyPart mbp = new MimeBodyPart();
 
-        // Определение файла в качестве контента
-        FileDataSource fds = new FileDataSource(filepath);
-        mbp.setDataHandler(new DataHandler(fds));
-        mbp.setFileName(fds.getName());
-        return mbp;
-    }
+    public void loadDataInTableXLS() {
 
-    public static void sendEmail(Session session, String toEmail, String subject, String body){
-        try
-        {
-            MimeMessage msg = new MimeMessage(session);
-            //set message headers
-            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
-            msg.addHeader("format", "flowed");
-            msg.addHeader("Content-Transfer-Encoding", "8bit");
 
-            msg.setFrom(new InternetAddress("no_reply@example.com", "NoReply-JD"));
+            // создание самого excel файла в памяти
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            // создание листа с названием "Карта сна"
+            HSSFSheet sheet = workbook.createSheet("Карта сна");
 
-            msg.setReplyTo(InternetAddress.parse("no_reply@example.com", false));
+            // заполняем список какими-то данными
+            List<DataModel> dataList = fillData();
 
-            msg.setSubject(subject, "UTF-8");
+            // счетчик для строк
+            int rowNum = 0;
 
-            msg.setText(body, "UTF-8");
+            // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
+            Row row = sheet.createRow(rowNum);
+            row.createCell(0).setCellValue("Имя");
+            row.createCell(1).setCellValue("Фамилия");
+            row.createCell(2).setCellValue("Город");
+            row.createCell(3).setCellValue("Зарплата");
 
-            msg.setSentDate(new Date());
+            // заполняем лист данными
+            for (DataModel dataModel : dataList) {
+                createSheetHeader(sheet, ++rowNum, dataModel);
+            }
+            String filename = "Apache_POI_.xls";
 
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-            System.out.println("Message is ready");
-            Transport.send(msg);
+            //File file = new File(getFilesDir(), filename);
+            // записываем созданный в памяти Excel документ в файл
+                /*String folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+                String name_pic = "picture.png";
+                //FileOutputStream output = new FileOutputStream(root+"/downloadedfile.jpg");
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{AndroidManifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1);*/
+            //try (FileOutputStream out = new FileOutputStream(new File("C:\\Users\\vika\\AndroidStudioProjects\\SleepApp\\app\\src\\main\\assets\\Apache_POI_.xls"))) {
+            //writeFileSD()
+            final String LOG_TAG = "myLogs";
+            final String DIR_SD = "MyFiles";
+            final String FILENAME_SD = "fileSD";
 
-            System.out.println("EMail Sent Successfully!!");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+            String FILE_PATH = getFilesDir().getAbsolutePath();
+            try {
+
+                File file = new File(FILE_PATH);
+                FileOutputStream stream = new FileOutputStream(file);
+                workbook.write(stream);
+                stream.close();
+            } catch (Exception e) {
+
+            }
+            try {
+                // отрываем поток для записи
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(openFileOutput(filename, MODE_PRIVATE)));
+                // пишем данные
+                bw.write("Содержимое файла");
+                // закрываем поток
+                bw.close();
+                Log.d(LOG_TAG, "Файл записан");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
 }
