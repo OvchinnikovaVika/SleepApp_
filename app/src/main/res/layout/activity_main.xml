@@ -27,6 +27,37 @@
             tools:layout_editor_absoluteX="64dp"
             tools:layout_editor_absoluteY="16dp" />
 
+        <!-- + Дима 19.03.2022 Добавлены поля "Дата начала" и "Дата окончания" -->
+        <EditText
+            android:id="@+id/fieldDateStart"
+            android:layout_width="265dp"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:inputType="date"
+            android:hint="@string/fieldDateStart"
+            android:textColorHint="@color/black"
+            android:textColor="@color/teal_700"
+            android:fontFamily="@font/montserrat"
+            android:layout_marginTop="10sp"
+            android:layout_marginHorizontal="50sp"
+            />
+
+        <EditText
+            android:id="@+id/fieldDateEnd"
+            android:layout_width="265dp"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:inputType="date"
+            android:hint="@string/fieldDateEnd"
+            android:textColorHint="@color/black"
+            android:textColor="@color/teal_700"
+            android:fontFamily="@font/montserrat"
+            android:layout_marginTop="10sp"
+            android:layout_marginHorizontal="50sp"
+            />
+        <!-- - Дима 19.03.2022 Добавлены поля "Дата начала" и "Дата окончания" -->
+
+        <!-- + Дима 19.03.2022 Изменена высота на 30 -->
         <EditText
             android:id="@+id/fieldFile"
             android:layout_width="265dp"
@@ -37,13 +68,13 @@
             android:textColorHint="@color/black"
             android:textColor="@color/teal_700"
             android:fontFamily="@font/montserrat"
-            android:layout_marginTop="50sp"
+            android:layout_marginTop="30sp"
             android:layout_marginHorizontal="50sp"
             android:backgroundTint="@color/cardview_light_background"
             tools:layout_editor_absoluteX="73dp"
             tools:layout_editor_absoluteY="147dp"
             />
-
+        <!-- - Дима 19.03.2022 Изменена высота на 30  -->
         <Button
             android:id="@+id/btnLoadFile"
             android:layout_width="match_parent"

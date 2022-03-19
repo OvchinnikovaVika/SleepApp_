@@ -10,4 +10,8 @@
     <string name="fieldTable">Введите ссылку на таблицу из Google Таблиц</string>
     <string name="btnLoadData">Загрузить данные</string>
     <string name="resultInfo">Результат</string>
+    <!-- + Дима 19.03.2022 Добавлены поля "Дата начала" и "Дата окончания" -->
+    <string name="fieldDateStart">Введите начало периода</string>
+    <string name="fieldDateEnd">Введите окончание периода</string>
+    <!-- - Дима 19.03.2022 Добавлены поля "Дата начала" и "Дата окончания" -->
 </resources>
