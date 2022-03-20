@@ -273,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
 
     //функция для получения Листа листов из файла
     //Ilya 20.03
+    // 17:37
     public static List<List<String>> getFileToList(String fileName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 
