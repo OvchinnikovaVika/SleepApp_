@@ -48,6 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -240,7 +241,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void getDataFromFile(){
+
+
+    // Получение файла с позицией "сон" из файла "BabyRecords"
+    //Ilya 19.03
+    public void getDataFromFile() {
 
 
         try (BufferedReader reader = new BufferedReader(new FileReader("BabyRecords.csv"));
@@ -250,8 +255,8 @@ public class MainActivity extends AppCompatActivity {
             String son = "Сон";
 
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                String flName = line.substring(1,4);
+
+                String flName = line.substring(1, 4);
 
                 if (flName.equals(son)) {
                     writer.write(line + "\n");
@@ -264,6 +269,30 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //функция для получения Листа листов из файла
+    //Ilya 20.03
+    public static List<List<String>> getFileToList(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+
+            List<List<String>> listItog = new ArrayList<>();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                listItog.add(Collections.singletonList(line));
+            }
+            return listItog;
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 
 //            BufferedReader reader = null;
 //            try {
@@ -295,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                }
 
-    }
+
     // заполнение строки (rowNum) определенного листа (sheet)
     // данными  из dataModel созданного в памяти Excel файла
     private static void createSheetHeader(HSSFSheet sheet, int rowNum, DataModel dataModel) {
