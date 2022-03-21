@@ -252,13 +252,15 @@ public class MainActivity extends AppCompatActivity {
              BufferedWriter writer = new BufferedWriter(new FileWriter("son.csv"))) {
 
             String line;
-            String son = "Сон";
+            String son = "Сон"; //son - sleep Vika
 
             while ((line = reader.readLine()) != null) {
 
                 String flName = line.substring(1, 4);
 
-                if (flName.equals(son)) {
+                // Vika
+                // Добавить условие - выделить только строки с нужным периодом
+                if (flName.equals(son)) {//son - sleep Vika
                     writer.write(line + "\n");
                 }
 
@@ -269,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Обработать файл "son.csv"
+        List<List<String>> listResult = getFileToList("son.csv");
     }
 
     //функция для получения Листа листов из файла
@@ -277,13 +282,13 @@ public class MainActivity extends AppCompatActivity {
     public static List<List<String>> getFileToList(String fileName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 
-            List<List<String>> listItog = new ArrayList<>();
+            List<List<String>> listItog = new ArrayList<>(); // listItog на listResult Vika
 
             String line;
             while ((line = reader.readLine()) != null) {
-                listItog.add(Collections.singletonList(line));
+                listItog.add(Collections.singletonList(line)); // listItog на listResult Vika
             }
-            return listItog;
+            return listItog; // listItog на listResult Vika
 
 
         } catch (FileNotFoundException e) {
@@ -295,35 +300,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//            BufferedReader reader = null;
-//            try {
-//                reader = new BufferedReader(
-//                        new InputStreamReader(getAssets().open("numbers.csv")));
-//
-//                // выполняется чтение, цикл до последней строки файла
-//                String mLine;
-//                while ((mLine = reader.readLine()) != null) {
-//                    System.out.format("%s ", mLine);
-//                }
-//                // файл только с"Сон"
-//                // файл записываться будет во временное приложения
-//                // файл только с "Сон" и датами начала и конца
-//                //
-//
-//                // Не реализовано
-//                // Считать данные из файла в какой-то массив
-//            }
-//             catch (IOException e) {
-//                    // обработка исключения
-//                } finally {
-//                    if (reader != null) {
-//                        try {
-//                            reader.close();
-//                        } catch (IOException e) {
-//                            // обработка исключения
-//                        }
-//                    }
-//                }
 
 
     // заполнение строки (rowNum) определенного листа (sheet)
