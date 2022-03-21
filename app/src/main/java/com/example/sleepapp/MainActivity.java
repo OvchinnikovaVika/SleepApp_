@@ -245,29 +245,34 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // Получение файла с позицией "сон" из файла "BabyRecords"
-    //Ilya 19.03
+    // Ilya 21.03
+    // Получение листа с позициями сон из файла BabyRecords.csv
     public void getDataFromFile() {
 
-        // reader = new BufferedReader(
-        //                        new InputStreamReader(getAssets().open("BabyRecords.csv")));
+        List<List<String>> listSleepResult = new ArrayList<>();
+
+
         // getAssets().open("BabyRecords.csv")
-        try (BufferedReader reader = new BufferedReader(new FileReader("BabyRecords.csv"));
-             BufferedWriter writer = new BufferedWriter(new FileWriter("son.csv"))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("BabyRecords.csv")));
+             ) {
+
             String line;
-            String son = "Сон"; //son - sleep Vika
+            String sleep = "Сон"; //son - sleep Vika
 
             while ((line = reader.readLine()) != null) {
 
                 String flName = line.substring(1, 4);
 
+
                 // Vika
                 // Добавить условие - выделить только строки с нужным периодом
-                if (flName.equals(son)) {//son - sleep Vika
-                    writer.write(line + "\n");
+                if (flName.equals(sleep)) {//son - sleep Vika
+                    listSleepResult.add(Collections.singletonList(line));
+
                 }
 
             }
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -275,8 +280,15 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+
+
+
+
         // Обработать файл "son.csv"
-        List<List<String>> listResult = getFileToList("son.csv");
+//        List<List<String>> listResult = getFileToList("sleep.csv");
+
+        listSleepResult.get(2);
         // 3.2 Отбирать записи с категорией "Сон"
         // и датой окончания больше даты окончания периода пользователя
         //И ( датой начала меньше даты начала периода пользователя
@@ -285,9 +297,10 @@ public class MainActivity extends AppCompatActivity {
 
     //функция для получения Листа листов из файла
     //Ilya 20.03
-    // 17:37
-    public static List<List<String>> getFileToList(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+    //
+    // Ilya 21.03 - функция немного изменена, функционал тот же
+    public List<List<String>> getFileToList(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)))) {
 
             List<List<String>> listItog = new ArrayList<>(); // listItog на listResult Vika
 
@@ -351,13 +364,15 @@ public class MainActivity extends AppCompatActivity {
     // + Вика 21.03
     // заполнение строки (rowNum) определенного листа (sheet)
     // данными  из dataModel созданного в памяти Excel файла
-    private static void createSheetHeader(HSSFSheet sheet, int rowNum, DataModel dataModel) {
+    private static void createSheetHeader(HSSFWorkbook workbook, HSSFSheet sheet, int rowNum, DataModel dataModel) {
         Row row = sheet.createRow(rowNum);
 
         row.createCell(0).setCellValue(dataModel.getRecordCategory());
         row.createCell(1).setCellValue(dataModel.getRecordSubCategory());
         row.createCell(2).setCellValue(dataModel.getStartDate());
-        row.createCell(3).setCellValue(dataModel.getFinishDate());
+        //row.createCell(3).setCellValue(dataModel.getFinishDate());
+        Date fDate = dataModel.getFinishDate();
+        createDateXLS(workbook, row, 3, fDate);
         row.createCell(4).setCellValue(dataModel.getDetails());
     }
 
@@ -365,9 +380,10 @@ public class MainActivity extends AppCompatActivity {
     // в реальных приложениях данные будут из БД или интернета
     private static List<DataModel> fillData() {
         List<DataModel> dataModels = new ArrayList<>();
-        dataModels.add(new DataModel("Сон","","16-мар.-2022 17:03","16-мар.-2022 17:41",""));
-        dataModels.add(new DataModel("Сон","","16-мар.-2022 09:23","16-мар.-2022 10:48",""));
-        dataModels.add(new DataModel("Сон","","13-мар.-2022 11:06","13-мар.-2022 11:40",""));
+        Date fDate = getStringToDate("16.03.2022");
+        dataModels.add(new DataModel("Сон","","16-мар.-2022 17:03", fDate,""));
+        dataModels.add(new DataModel("Сон","","16-мар.-2022 09:23",fDate,""));
+        dataModels.add(new DataModel("Сон","","13-мар.-2022 11:06",fDate,""));
 
         return dataModels;
     }
@@ -393,7 +409,9 @@ public class MainActivity extends AppCompatActivity {
             row.createCell(0).setCellValue("RecordCategory");
             row.createCell(1).setCellValue("RecordSubCategory");
             row.createCell(2).setCellValue("StartDate");
-            row.createCell(3).setCellValue("EndDate");
+            // row.createCell(3).setCellValue("EndDate");
+            Date fDate = getStringToDate("15.03.2022");
+            createDateXLS(workbook, row, 3, fDate);
             row.createCell(4).setCellValue("Details");
 
             // createDateXLS(workbook, row, 1,"StartDate"); //для работы с ячейкой дата пригодится
@@ -403,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
 
             // заполняем лист данными
             for (DataModel dataModel : dataList) {
-                createSheetHeader(sheet, ++rowNum, dataModel);
+                createSheetHeader(workbook, sheet, ++rowNum, dataModel);
             }
 
 
@@ -454,16 +472,16 @@ public class MainActivity extends AppCompatActivity {
 
     // Создание ячейки - даты в файле xls
     // + Vika 21/03/22
-    private static void createDateXLS(HSSFWorkbook workbook, Row row, int CellNum, String nameCell) {
+    private static void createDateXLS(HSSFWorkbook workbook, Row row, int CellNum, Date dateInCell) {
 
         HSSFCell dateXLS = (HSSFCell) row.createCell(CellNum);
-        dateXLS.setCellValue(nameCell);
+
         HSSFDataFormat format = workbook.createDataFormat();
         HSSFCellStyle dateStyle = workbook.createCellStyle();
-        dateStyle.setDataFormat(format.getFormat("dd.mm.yyyy"));
+        dateStyle.setDataFormat(format.getFormat("m/d/yy h:mm"));
 
+        dateXLS.setCellValue(dateInCell);//подставим значение
         dateXLS.setCellStyle(dateStyle);
-        dateXLS.setCellValue(new Date(110, 10, 10));//подставим значение
     }
     // - Vika 21/03/22
 
@@ -475,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
 
         int rowNum = 0;
 
+        //dataList.size(), надо проходить на один больше, так как есть заголовок
         for (DataModel dataModel : dataList) {
 
             HSSFRow row = myExcelSheet.getRow(rowNum);
@@ -497,9 +516,9 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("startDate :" + startDateXLS);
             }
 
-            if(row.getCell(3).getCellType() == HSSFCell.CELL_TYPE_STRING){
-                //Date startDate = row.getCell(1).getDateCellValue();
-                String endDateXLS =  row.getCell(3).getStringCellValue();
+            if(row.getCell(3).getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
+                Date endDateXLS = row.getCell(3).getDateCellValue();
+                //String endDateXLS =  row.getCell(3).getStringCellValue();
                 System.out.println("endDate :" + endDateXLS);
             }
 
