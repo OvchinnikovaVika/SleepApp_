@@ -2,50 +2,69 @@ package com.example.sleepapp;
 
 public class DataModel {
 
-    private String name;
-    private String surname;
-    private String city;
-    private Double salary;
+    private String recordCategory;
+    private String recordSubCategory;
+    private String startDate; // Date
+    private String finishDate; // Date
+    private String details;
+    // private Double salary;
 
     public DataModel() {
     }
 
-    public DataModel(String name, String surname, String city, Double salary) {
-        this.name = name;
-        this.surname = surname;
-        this.city = city;
-        this.salary = salary;
+    public DataModel(String recordCategory, String recordSubCategory, String startDate, String finishDate, String details) {
+        this.recordCategory = recordCategory;
+        this.recordSubCategory = recordSubCategory;
+        this.startDate = startDate;
+        this.finishDate = finishDate;
+        this.details = details;
     }
 
-    public String getName() {
-        return name;
+    public String getRecordCategory() {
+        return recordCategory;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRecordCategory(String recordCategory) {
+        this.recordCategory = recordCategory;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getRecordSubCategory() {
+        return recordSubCategory;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setRecordSubCategory(String recordSubCategory) {
+        this.recordSubCategory = recordSubCategory;
     }
 
-    public String getCity() {
-        return city;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
-    public Double getSalary() {
+    public String getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(String finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    /*public Double getSalary() {
         return salary;
     }
 
     public void setSalary(Double salary) {
         this.salary = salary;
-    }
+    }*/
 }

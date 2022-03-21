@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -61,7 +62,11 @@ import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFComment;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -170,10 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         // Сравнение дат
-                        boolean is1After2 = dateStart.after(dateEnd); //Проверяет, является ли эта дата после указанной даты.
-                            // true если и только если момент, представленный этим объектом Date, строго позже момента, представленного when; falseв противном случае.
-                        boolean is2Before3 = dateStart.before(dateEnd); //true если и только если момент времени, представленный этим объектом Date, строго раньше момента, представленного when; falseв противном случае.
-                         // - Вика  21.03.2022 Обработка полей начало периода и окончание периода
+                        String resultCompare = compareDates(dateStart,dateEnd);
 
                         new GetFileData().execute(fileName); // Считать данные из файла *.csv
                         new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
@@ -247,10 +249,11 @@ public class MainActivity extends AppCompatActivity {
     //Ilya 19.03
     public void getDataFromFile() {
 
-
+        // reader = new BufferedReader(
+        //                        new InputStreamReader(getAssets().open("BabyRecords.csv")));
+        // getAssets().open("BabyRecords.csv")
         try (BufferedReader reader = new BufferedReader(new FileReader("BabyRecords.csv"));
              BufferedWriter writer = new BufferedWriter(new FileWriter("son.csv"))) {
-
             String line;
             String son = "Сон"; //son - sleep Vika
 
@@ -345,35 +348,38 @@ public class MainActivity extends AppCompatActivity {
     }
     // - Вика 21.03
 
+    // + Вика 21.03
     // заполнение строки (rowNum) определенного листа (sheet)
     // данными  из dataModel созданного в памяти Excel файла
     private static void createSheetHeader(HSSFSheet sheet, int rowNum, DataModel dataModel) {
         Row row = sheet.createRow(rowNum);
 
-        row.createCell(0).setCellValue(dataModel.getName());
-        row.createCell(1).setCellValue(dataModel.getSurname());
-        row.createCell(2).setCellValue(dataModel.getCity());
-        row.createCell(3).setCellValue(dataModel.getSalary());
+        row.createCell(0).setCellValue(dataModel.getRecordCategory());
+        row.createCell(1).setCellValue(dataModel.getRecordSubCategory());
+        row.createCell(2).setCellValue(dataModel.getStartDate());
+        row.createCell(3).setCellValue(dataModel.getFinishDate());
+        row.createCell(4).setCellValue(dataModel.getDetails());
     }
 
     // заполняем список рандомными данными
     // в реальных приложениях данные будут из БД или интернета
     private static List<DataModel> fillData() {
         List<DataModel> dataModels = new ArrayList<>();
-        dataModels.add(new DataModel("Howard", "Wolowitz", "Massachusetts", 90000.0));
-        dataModels.add(new DataModel("Leonard", "Hofstadter", "Massachusetts", 95000.0));
-        dataModels.add(new DataModel("Sheldon", "Cooper", "Massachusetts", 120000.0));
+        dataModels.add(new DataModel("Сон","","16-мар.-2022 17:03","16-мар.-2022 17:41",""));
+        dataModels.add(new DataModel("Сон","","16-мар.-2022 09:23","16-мар.-2022 10:48",""));
+        dataModels.add(new DataModel("Сон","","13-мар.-2022 11:06","13-мар.-2022 11:40",""));
 
         return dataModels;
     }
 
-    public void loadDataInTableXLS() {
+    // - Вика 21.03
 
+    public void loadDataInTableXLS() {
 
             // создание самого excel файла в памяти
             HSSFWorkbook workbook = new HSSFWorkbook();
             // создание листа с названием "Карта сна"
-            HSSFSheet sheet = workbook.createSheet("Карта сна");
+            HSSFSheet sheet = workbook.createSheet("SleepMap");
 
             // заполняем список какими-то данными
             List<DataModel> dataList = fillData();
@@ -383,16 +389,23 @@ public class MainActivity extends AppCompatActivity {
 
             // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
             Row row = sheet.createRow(rowNum);
-            row.createCell(0).setCellValue("Имя");
-            row.createCell(1).setCellValue("Фамилия");
-            row.createCell(2).setCellValue("Город");
-            row.createCell(3).setCellValue("Зарплата");
+
+            row.createCell(0).setCellValue("RecordCategory");
+            row.createCell(1).setCellValue("RecordSubCategory");
+            row.createCell(2).setCellValue("StartDate");
+            row.createCell(3).setCellValue("EndDate");
+            row.createCell(4).setCellValue("Details");
+
+            // createDateXLS(workbook, row, 1,"StartDate"); //для работы с ячейкой дата пригодится
+
+        String filename = "Apache_POI_.xls";
+        // Записываем всё в файл
 
             // заполняем лист данными
             for (DataModel dataModel : dataList) {
                 createSheetHeader(sheet, ++rowNum, dataModel);
             }
-            String filename = "Apache_POI_.xls";
+
 
             //File file = new File(getFilesDir(), filename);
             // записываем созданный в памяти Excel документ в файл
@@ -408,10 +421,11 @@ public class MainActivity extends AppCompatActivity {
             final String DIR_SD = "MyFiles";
             final String FILENAME_SD = "fileSD";
 
-            String FILE_PATH = getFilesDir().getAbsolutePath();
+            String FILE_PATH = getFilesDir().getAbsolutePath() + "/" + filename;
+            File file = new File(FILE_PATH);
             try {
 
-                File file = new File(FILE_PATH);
+
                 FileOutputStream stream = new FileOutputStream(file);
                 workbook.write(stream);
                 stream.close();
@@ -419,6 +433,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
             try {
+                readFromExcel(FILE_PATH, dataList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            /*try {
                 // отрываем поток для записи
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(openFileOutput(filename, MODE_PRIVATE)));
                 // пишем данные
@@ -430,9 +449,71 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
     }
 
+    // Создание ячейки - даты в файле xls
+    // + Vika 21/03/22
+    private static void createDateXLS(HSSFWorkbook workbook, Row row, int CellNum, String nameCell) {
+
+        HSSFCell dateXLS = (HSSFCell) row.createCell(CellNum);
+        dateXLS.setCellValue(nameCell);
+        HSSFDataFormat format = workbook.createDataFormat();
+        HSSFCellStyle dateStyle = workbook.createCellStyle();
+        dateStyle.setDataFormat(format.getFormat("dd.mm.yyyy"));
+
+        dateXLS.setCellStyle(dateStyle);
+        dateXLS.setCellValue(new Date(110, 10, 10));//подставим значение
+    }
+    // - Vika 21/03/22
+
+    // Чтение файла xls, вывод в консоль
+    // + Vika 21/03/22
+    public static void readFromExcel(String file, List<DataModel> dataList) throws IOException{
+        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(file));
+        HSSFSheet myExcelSheet = myExcelBook.getSheet("SleepMap");
+
+        int rowNum = 0;
+
+        for (DataModel dataModel : dataList) {
+
+            HSSFRow row = myExcelSheet.getRow(rowNum);
+
+
+            if(row.getCell(0).getCellType() == HSSFCell.CELL_TYPE_STRING){
+                String recordCategoryXLS = row.getCell(0).getStringCellValue();
+                System.out.println("RecordCategory : " + recordCategoryXLS);
+            }
+
+            if(row.getCell(1).getCellType() == HSSFCell.CELL_TYPE_STRING){
+                String recordSubCategoryXLS = row.getCell(1).getStringCellValue();
+                System.out.println("RecordSubCategory : " + recordSubCategoryXLS);
+            }
+
+             // if(row.getCell(1).getCellType() == HSSFCell.CELL_TYPE_NUMERIC){ // когда не строка будет
+            if(row.getCell(2).getCellType() == HSSFCell.CELL_TYPE_STRING){
+               // Date startDate = row.getCell(1).getDateCellValue();
+                String startDateXLS =  row.getCell(2).getStringCellValue();
+                System.out.println("startDate :" + startDateXLS);
+            }
+
+            if(row.getCell(3).getCellType() == HSSFCell.CELL_TYPE_STRING){
+                //Date startDate = row.getCell(1).getDateCellValue();
+                String endDateXLS =  row.getCell(3).getStringCellValue();
+                System.out.println("endDate :" + endDateXLS);
+            }
+
+            if(row.getCell(4).getCellType() == HSSFCell.CELL_TYPE_STRING){
+                //Date startDate = row.getCell(1).getDateCellValue();
+                String detailXLS =  row.getCell(4).getStringCellValue();
+                System.out.println("Details :" + detailXLS);
+            }
+            rowNum = rowNum + 1;
+        }
+        //myExcelBook.close();
+
+    }
+    // - Vika 21/03/22
 }
 
 
