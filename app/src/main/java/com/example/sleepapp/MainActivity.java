@@ -3,6 +3,7 @@ package com.example.sleepapp;
 import static java.nio.charset.StandardCharsets.*;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 
@@ -10,6 +11,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,7 +48,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnLoadFile.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
 
@@ -151,29 +156,24 @@ public class MainActivity extends AppCompatActivity {
                         String fileName = fieldFile.getText().toString(); // Получить имя файла
                         String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
 
-                        // + Вика  19.03.2022 Обработка полей начало периода и окончание периода
-                            // Может лучше выделить в функцию
+                        // + Вика  21.03.2022 Обработка полей начало периода и окончание периода
+                        // Выделено в функцию
                         // Надо перевести строки в даты, понять какой нужен формат,
-                        // формат - "16-мар.-2022 00:00"
-
-                        // Получить начало периода
-
+                        // формат - "16-мар.-2022 00:00" в файле, для сравнения 22.02.2022
                         Date dateStart;
                         Date dateEnd;
-                            try {
-                                dateStart = new SimpleDateFormat("dd-MMM.-yyyy HH:mm",
-                                        Locale.getDefault()).parse(fieldDateStart.getText().toString());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            // Получить конец периода
-                            try {
-                                dateEnd = new SimpleDateFormat("dd-MMM.-yyyy HH:mm",
-                                        Locale.getDefault()).parse(fieldDateEnd.getText().toString());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            // - Вика  19.03.2022 Обработка полей начало периода и окончание периода
+                        String dateStartStr = "22.02.2022";//fieldDateStart.getText().toString()
+                        String dateEndStr = "23.02.2022";//fieldDateEnd.getText().toString()
+
+                        dateStart = getStringToDate(dateStartStr);
+                        dateEnd = getStringToDate(dateEndStr);
+
+
+                        // Сравнение дат
+                        boolean is1After2 = dateStart.after(dateEnd); //Проверяет, является ли эта дата после указанной даты.
+                            // true если и только если момент, представленный этим объектом Date, строго позже момента, представленного when; falseв противном случае.
+                        boolean is2Before3 = dateStart.before(dateEnd); //true если и только если момент времени, представленный этим объектом Date, строго раньше момента, представленного when; falseв противном случае.
+                         // - Вика  21.03.2022 Обработка полей начало периода и окончание периода
 
                         new GetFileData().execute(fileName); // Считать данные из файла *.csv
                         new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
@@ -274,6 +274,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Обработать файл "son.csv"
         List<List<String>> listResult = getFileToList("son.csv");
+        // 3.2 Отбирать записи с категорией "Сон"
+        // и датой окончания больше даты окончания периода пользователя
+        //И ( датой начала меньше даты начала периода пользователя
+        //или датой начала больше даты начала периода пользователя)
     }
 
     //функция для получения Листа листов из файла
@@ -301,6 +305,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // функция для получения даты из строки
+    // + Вика 21.03
+    public static Date getStringToDate(String strDate) {
+
+        Date dateResult = new Date();
+
+        SimpleDateFormat format = new SimpleDateFormat();
+        format.applyPattern("dd.MM.yyyy");
+
+        try {
+            dateResult = format.parse(strDate);
+            return dateResult;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+    // - Вика 21.03
+
+    // функция Сравнение дат
+    // + Вика 21.03
+    public static String compareDates(Date dateStart, Date dateEnd) {
+
+        // Сравнение дат
+        boolean isAfter = dateStart.after(dateEnd); //Проверяет, является ли эта дата после указанной даты.
+        // true если и только если момент, представленный этим объектом Date, строго позже момента, представленного dateEnd; false в противном случае.
+        boolean isBefore = dateStart.before(dateEnd);
+        // true если и только если момент времени, представленный этим объектом Date, строго раньше момента, представленного dateEnd; false в противном случае.
+
+        if (isAfter)
+            return "isAfter";
+        else if (isBefore)
+            return "isBefore";
+        else
+            return null;
+
+    }
+    // - Вика 21.03
 
     // заполнение строки (rowNum) определенного листа (sheet)
     // данными  из dataModel созданного в памяти Excel файла
