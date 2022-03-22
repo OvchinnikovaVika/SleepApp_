@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
             elementDataModel.setFinishDate(endDate);*/
             elementDataModel.setDetails(strarray[0].split("\".+?\"")[4]);
 
-            dataModels.add(elementDataModel);
+            dataModels.add(elementDataModel);//
         }
 
 
