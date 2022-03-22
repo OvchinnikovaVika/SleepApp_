@@ -167,11 +167,13 @@ public class MainActivity extends AppCompatActivity {
                         // формат - "16-мар.-2022 00:00" в файле, для сравнения 22.02.2022
                         Date dateStart;
                         Date dateEnd;
-                        String dateStartStr = "22.02.2022";//fieldDateStart.getText().toString()
-                        String dateEndStr = "23.02.2022";//fieldDateEnd.getText().toString()
+//                        String dateStartStr = "22.02.2022";//fieldDateStart.getText().toString()
+//                        String dateEndStr = "23.02.2022";//fieldDateEnd.getText().toString()
 
-                        dateStart = getStringToDate(dateStartStr);
-                        dateEnd = getStringToDate(dateEndStr);
+
+
+                        dateStart = getStringToDate(fieldDateStart.getText().toString());
+                        dateEnd = getStringToDate(fieldDateEnd.getText().toString());
 
 
                         // Сравнение дат
@@ -296,12 +298,36 @@ public class MainActivity extends AppCompatActivity {
             elementDataModel.setStartDate(strarray[0].split("\".+?\"")[2]);
 
             //getStringToDate
-
+           // String finishDateStr = strarray[0].split("\".+?\"")[3];
             String finishDateStr = strarray[0].split("\".+?\"")[3]; // убрать тире и точки
+
+//            String finishDateStr = "16-сент.-2022 12:27";
+            if (finishDateStr.length()==18) { // при условии, что месяц записан 3 буквами
+                String finishDateStrSubstring1 = finishDateStr.substring(0,12);  // получаем строку формата:
+                String finishDateStrSubstring2 = finishDateStr.substring(13,18);
+
+                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("-", " ");
+//                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.\\s", ".");
+                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.", " ");
+
+                finishDateStr = finishDateStrSubstring1 + " " + finishDateStrSubstring2;
+            }
+            else {
+                String finishDateStrSubstring1 = finishDateStr.substring(0,13);  // получаем строку формата:
+                String finishDateStrSubstring2 = finishDateStr.substring(14,19);
+
+                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("-", " ");
+//                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.\\s", ".");
+                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.", " ");
+
+                finishDateStr = finishDateStrSubstring1 + " " + finishDateStrSubstring2;
+            }
+
+
             //finishDateStr
 
             try {
-                Date endDate = new SimpleDateFormat("d MMM yyyy HH:mm",Locale.getDefault()).parse(finishDateStr);
+                Date endDate = new SimpleDateFormat("d MMM  yyyy HH:mm",Locale.getDefault()).parse(finishDateStr);
 
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -356,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
         Date dateResult = new Date();
 
         SimpleDateFormat format = new SimpleDateFormat();
-        format.applyPattern("dd.MM.yyyy");
+        format.applyPattern("d MMM  yyyy HH:mm");
 
         try {
             dateResult = format.parse(strDate);
