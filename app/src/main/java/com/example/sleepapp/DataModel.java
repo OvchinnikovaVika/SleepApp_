@@ -1,18 +1,20 @@
 package com.example.sleepapp;
 
+import java.util.Date;
+
 public class DataModel {
 
     private String recordCategory;
     private String recordSubCategory;
     private String startDate; // Date
-    private String finishDate; // Date
+    private Date finishDate; // Date
     private String details;
     // private Double salary;
 
     public DataModel() {
     }
 
-    public DataModel(String recordCategory, String recordSubCategory, String startDate, String finishDate, String details) {
+    public DataModel(String recordCategory, String recordSubCategory, String startDate, Date finishDate, String details) {
         this.recordCategory = recordCategory;
         this.recordSubCategory = recordSubCategory;
         this.startDate = startDate;
@@ -44,11 +46,11 @@ public class DataModel {
         this.startDate = startDate;
     }
 
-    public String getFinishDate() {
+    public Date getFinishDate() {
         return finishDate;
     }
 
-    public void setFinishDate(String finishDate) {
+    public void setFinishDate(Date finishDate) {
         this.finishDate = finishDate;
     }
 
