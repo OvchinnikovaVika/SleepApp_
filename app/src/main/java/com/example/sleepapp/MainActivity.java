@@ -301,7 +301,6 @@ public class MainActivity extends AppCompatActivity {
            // String finishDateStr = strarray[0].split("\".+?\"")[3];
             String finishDateStr = strarray[0].split("\".+?\"")[3]; // убрать тире и точки
 
-//            String finishDateStr = "16-сент.-2022 12:27";
             if (finishDateStr.length()==18) { // при условии, что месяц записан 3 буквами
                 String finishDateStrSubstring1 = finishDateStr.substring(0,12);  // получаем строку формата:
                 String finishDateStrSubstring2 = finishDateStr.substring(13,18);
