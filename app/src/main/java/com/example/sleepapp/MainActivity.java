@@ -251,8 +251,6 @@ public class MainActivity extends AppCompatActivity {
 
         List<List<String>> listSleepResult = new ArrayList<>();
 
-
-        // getAssets().open("BabyRecords.csv")
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("BabyRecords.csv")));
              ) {
 
@@ -263,9 +261,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String flName = line.substring(1, 4);
 
-
-                // Vika
-                // Добавить условие - выделить только строки с нужным периодом
                 if (flName.equals(sleep)) {//son - sleep Vika
                     listSleepResult.add(Collections.singletonList(line));
 
@@ -280,15 +275,34 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-
-
-
-
         // Обработать файл "son.csv"
 //        List<List<String>> listResult = getFileToList("sleep.csv");
 
-        listSleepResult.get(2);
+        // + Vika 22.03.22
+        // Перевести в dataModels, разбить на подстроки
+
+        List<DataModel> dataModels = new ArrayList<>();
+
+        for (List<String> row : listSleepResult)
+        {
+            DataModel elementDataModel = new DataModel();
+
+            String[] strarray = row.toArray(new String[0]);
+
+            elementDataModel.setRecordCategory(strarray[0].substring(1, 4));
+            elementDataModel.setRecordSubCategory(strarray[0].split("\".+?\"")[1]);
+            elementDataModel.setStartDate(strarray[0].split("\".+?\"")[2]);
+
+
+            /*Date endDate = getStringToDate(strarray[0].split("\".+?\"")[3]);
+            elementDataModel.setFinishDate(endDate);*/
+            elementDataModel.setDetails(strarray[0].split("\".+?\"")[4]);
+
+            dataModels.add(elementDataModel);
+        }
+
+
+        // - Vika 22.03.22
         // 3.2 Отбирать записи с категорией "Сон"
         // и датой окончания больше даты окончания периода пользователя
         //И ( датой начала меньше даты начала периода пользователя
@@ -340,6 +354,39 @@ public class MainActivity extends AppCompatActivity {
 
     }
     // - Вика 21.03
+
+    public static void strToDatePr() throws ParseException{
+        //Date date = new SimpleDateFormat("y-M-d H:m:s.S").parse("2017-9-11 13:1:28.9");
+        Date date = new SimpleDateFormat("d MMM yyyy HH:mm",Locale.getDefault()).parse("11 сен 2017 13:01");
+
+        Locale[] locales = {	Locale.getDefault(),
+                Locale.US,
+                Locale.FRANCE};
+
+        String[] patterns = {	"yyyy.MM.dd G 'at' HH:mm:ss z",
+                "EEE, MMM d, ''yy",
+                "h:mm a",
+                "hh 'o''clock' a, zzzz",
+                "K:mm a, z",
+                "yyyyy.MMMMM.dd GGG hh:mm aaa",
+                "EEE, d MMM yyyy HH:mm:ss Z",
+                "yyMMddHHmmssZ",
+                "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                "YYYY-'W'ww-u"};
+
+        for(String pattern: patterns){
+            System.out.println(pattern);
+            for(Locale loc: locales){
+                System.out.println("\t"+loc+":\t"+new SimpleDateFormat(pattern, loc).format(date));
+            }
+        }
+
+        System.out.println("По умолчанию");
+        for(Locale loc: locales){
+            Locale.setDefault(loc);
+            System.out.println("\t"+loc+":\t"+new SimpleDateFormat().format(date));
+        }
+    }
 
     // функция Сравнение дат
     // + Вика 21.03
