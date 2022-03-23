@@ -32,49 +32,39 @@ public class CSVFile {
             elementDataModel.setRecordSubCategory(strarray[0].split("\".+?\"")[1]);
             elementDataModel.setStartDate(strarray[0].split("\".+?\"")[2]);
 
-            //getStringToDate
-            // String finishDateStr = strarray[0].split("\".+?\"")[3];
             String finishDateStr = strarray[0].split("\".+?\"")[3]; // убрать тире и точки
+            String startDateStr = strarray[0].split("\".+?\"")[2]; // убрать тире и точки
 
-            if (finishDateStr.length()==18) { // при условии, что месяц записан 3 буквами
-                String finishDateStrSubstring1 = finishDateStr.substring(0,12);  // получаем строку формата:
-                String finishDateStrSubstring2 = finishDateStr.substring(13,18);
-
-                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("-", " ");
-//                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.\\s", ".");
-                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.", " ");
-
-                finishDateStr = finishDateStrSubstring1 + " " + finishDateStrSubstring2;
-            }
-            else {
-                String finishDateStrSubstring1 = finishDateStr.substring(0,13);  // получаем строку формата:
-                String finishDateStrSubstring2 = finishDateStr.substring(14,19);
-
-                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("-", " ");
-//                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.\\s", ".");
-                finishDateStrSubstring1 = finishDateStrSubstring1.replaceAll("\\.", " ");
-
-                finishDateStr = finishDateStrSubstring1 + " " + finishDateStrSubstring2;
-            }
-
-            Date startDate = new Date();
-            Date endDate = new Date();
             try {
-                endDate = new SimpleDateFormat("d MMM  yyyy HH:mm", Locale.getDefault()).parse(finishDateStr);
+                Date startDate = new SimpleDateFormat("d MMM  yyyy HH:mm",
+                        Locale.getDefault()).parse((startDateStr.replace("-"," ")).replaceAll("\\."," "));
+                Date endDate = new SimpleDateFormat("d MMM  yyyy HH:mm",
+                        Locale.getDefault()).parse((finishDateStr.replace("-"," ")).replaceAll("\\."," "));
+
+                Long dateEnd = endDate.getTime(); // заданная дата в Unix-epoch в мс
+                Long dateStart = startDate.getTime(); // заданная дата в Unix-epoch в мс
+
+
+                Long sleepDuration = (dateEnd - dateStart)/1000/60;//38 минут сна - продолжительность сна в минутах
+                Long durationUserEnd = (dateUserEnd.getTime() - dateEnd)/1000/60/60; //разница в минутах между пользовательским концом периода
+                // и концом из файла
+
+                Long durationUserStart = (dateUserStart.getTime() - dateStart)/1000/60; //разница в минутах между текущим временем и заданным
+                elementDataModel.setFinishDate(endDate);
 
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
 
-            if (endDate.before(dateUserEnd) && (startDate.after(dateUserStart))
-                    || endDate.after(dateUserStart) && (startDate.after(dateUserStart))){
+            //before(dateUserEnd) && (startDate.after(dateUserStart))
+                   // || endDate.after(dateUserStart) && (startDate.after(dateUserStart))){
 
-            }
+           // }
                 // если дата окончания из файла позже даты пользователя
 
 
-            elementDataModel.setFinishDate(endDate);
+
             elementDataModel.setDetails(strarray[0].split("\".+?\"")[4]);
 
             dataModels.add(elementDataModel);//
