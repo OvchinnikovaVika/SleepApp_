@@ -46,7 +46,7 @@ public class CSVFile {
 
 
                 Long sleepDuration = (dateEnd - dateStart)/1000/60;//38 минут сна - продолжительность сна в минутах
-                Long durationUserEnd = (dateUserEnd.getTime() - dateEnd)/1000/60/60; //разница в минутах между пользовательским концом периода
+                Long durationUserEnd = (dateUserEnd.getTime() - dateEnd)/1000/60; //разница в минутах между пользовательским концом периода
                 // и концом из файла
 
                 Long durationUserStart = (dateUserStart.getTime() - dateStart)/1000/60; //разница в минутах между текущим временем и заданным
