@@ -24,50 +24,48 @@ public class CSVFile {
 
         for (List<String> row : listSleepResult)
         {
-            DataModel elementDataModel = new DataModel();
-
-            String[] strarray = row.toArray(new String[0]);
-
-            elementDataModel.setRecordCategory(strarray[0].substring(1, 4));
-            elementDataModel.setRecordSubCategory(strarray[0].split("\".+?\"")[1]);
-            elementDataModel.setStartDate(strarray[0].split("\".+?\"")[2]);
-
-            String finishDateStr = strarray[0].split("\".+?\"")[3]; // убрать тире и точки
-            String startDateStr = strarray[0].split("\".+?\"")[2]; // убрать тире и точки
+            dateUserEnd = new Date(2022,03,17);
 
             try {
-                Date startDate = new SimpleDateFormat("d MMM  yyyy HH:mm",
+                dateUserStart = new SimpleDateFormat("dd.MM.yyyy HH:mm",
+                        Locale.getDefault()).parse("16.03.2022 00:01");
+                String[] strarray = row.toArray(new String[0]);
+
+
+                String finishDateStr = strarray[0].split("\".+?\"")[3]; // убрать тире и точки
+                String startDateStr = strarray[0].split("\".+?\"")[2]; // убрать тире и точки
+               Date startDate = new SimpleDateFormat("d MMM  yyyy HH:mm",
                         Locale.getDefault()).parse((startDateStr.replace("-"," ")).replaceAll("\\."," "));
                 Date endDate = new SimpleDateFormat("d MMM  yyyy HH:mm",
                         Locale.getDefault()).parse((finishDateStr.replace("-"," ")).replaceAll("\\."," "));
 
-                Long dateEnd = endDate.getTime(); // заданная дата в Unix-epoch в мс
-                Long dateStart = startDate.getTime(); // заданная дата в Unix-epoch в мс
-
-
-                Long sleepDuration = (dateEnd - dateStart)/1000/60;//38 минут сна - продолжительность сна в минутах
-                Long durationUserEnd = (dateUserEnd.getTime() - dateEnd)/1000/60; //разница в минутах между пользовательским концом периода
+                Long sleepDuration = (endDate.getTime() - startDate.getTime())/1000/60;//38 минут сна - продолжительность сна в минутах
+                //Long durationUserEnd = (dateUserEnd.getTime() - dateEnd)/1000/60; //разница в минутах между пользовательским концом периода
                 // и концом из файла
 
-                Long durationUserStart = (dateUserStart.getTime() - dateStart)/1000/60; //разница в минутах между текущим временем и заданным
-                elementDataModel.setFinishDate(endDate);
+                //Long durationUserStart = (dateStart - dateUserStart.getTime())/1000/60; //разница в минутах между пользовательским началом периода
+
+                if (endDate.before(dateUserEnd) &&
+                        startDate.after(dateUserStart) &&
+                        dateUserStart.before(endDate) &&
+                        startDate.before(dateUserEnd)
+                        && sleepDuration < 300) { //добавить элемент
+
+                    DataModel elementDataModel = new DataModel();
+
+                    elementDataModel.setRecordCategory(strarray[0].substring(1, 4));
+                    elementDataModel.setRecordSubCategory(strarray[0].split("\".+?\"")[1]);
+                    elementDataModel.setStartDate(strarray[0].split("\".+?\"")[2]);
+                    elementDataModel.setFinishDate(endDate);
+                    elementDataModel.setDetails(strarray[0].split("\".+?\"")[4]);
+
+                    dataModels.add(elementDataModel);
+                }
 
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-
-            //before(dateUserEnd) && (startDate.after(dateUserStart))
-                   // || endDate.after(dateUserStart) && (startDate.after(dateUserStart))){
-
-           // }
-                // если дата окончания из файла позже даты пользователя
-
-
-
-            elementDataModel.setDetails(strarray[0].split("\".+?\"")[4]);
-
-            dataModels.add(elementDataModel);//
         }
 
         // - Vika 22.03.22
