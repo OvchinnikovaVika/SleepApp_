@@ -1,11 +1,14 @@
 package com.example.sleepapp;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +18,38 @@ import javax.xml.datatype.Duration;
 public class CSVFile {
 
     public CSVFile() {
+    }
+
+
+    // Ilya 25.03
+    // Функция добавляет к дате пользователя 1 минуту
+    public Date getUserDate(String userDate) {
+
+        int userStartDayOfMonth = Integer.parseInt(userDate.substring(0,2)); // Получаем день
+        int userStartMonth = Integer.parseInt(userDate.substring(3,5)); // Получаем месяц
+        int userStartYear = Integer.parseInt(userDate.substring(6,10)); // Получаем год
+
+
+        Calendar calendarUserStartDate = new GregorianCalendar(userStartYear, userStartMonth-1, userStartDayOfMonth); // В месяце параметр -1, т.к в календаре месяцы нумеруются с нуля
+
+        calendarUserStartDate.set(Calendar.MINUTE, 1);  // добавляем минуту
+
+
+        String userDateTimeMillSec = String.valueOf(calendarUserStartDate.getTimeInMillis()); // получаем дату в миллисекундах
+
+        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        long milliSeconds= Long.parseLong(userDateTimeMillSec);
+
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+
+        String str = formatter.format(calendar.getTime()); // Получаем строку типа : dd.MM.yyyy HH:mm
+
+        Date dateUser = getDateFromString(str, "dd.MM.yyyy HH:mm"); // Получаем дату типа : dd.MM.yyyy HH:mm
+
+        return dateUser;
     }
 
     public List<DataModel> getDataModelFromListSleepResult(List<List<String>> listSleepResult, String userStart, String userEnd) {
@@ -29,9 +64,17 @@ public class CSVFile {
         for (List<String> row : listSleepResult)
         {
 
-            Date dateUserStart1 = getDateFromString(userStart,"dd.MM.yyyy");
+            Date dateUserStart1 = getUserDate(userStart); // получаем дату, которая увеличина на минуту (Ilya 25.03)
+            Date dateUserEnd1 = getUserDate(userEnd);
 
-            Date dateUserEnd1 = getDateFromString(userEnd,"dd.MM.yyyy");
+
+
+//            Date dateUserStart1 = getDateFromString(userStart,"dd.MM.yyyy");
+//
+//            Date dateUserEnd1 = getDateFromString(userEnd,"dd.MM.yyyy");
+
+
+
 
             // Надо прибавить 1 секунду или 1 час к датам сверху, чтобы было
             // 14.03.2022 01:00:00 или 14.03.2022 00:01:00
@@ -121,6 +164,7 @@ public class CSVFile {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
 
         return null;
 
