@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            loadDataInTableXLS(); // Загрузить данные из файла в таблицу
+            //loadDataInTableXLS(); // Загрузить данные из файла в таблицу
 
             return "result";
 
@@ -262,8 +262,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Получить даты от пользователя, которые он ввёл
-        Date dateStart = getStringToDate(fieldDateStart.getText().toString());
-        Date dateEnd = getStringToDate(fieldDateEnd.getText().toString());
+        String dateStart = fieldDateStart.getText().toString();
+        String dateEnd = fieldDateEnd.getText().toString();
 
         // + Vika 23.03.22
         // Появился новый класс CSVFile
@@ -271,6 +271,11 @@ public class MainActivity extends AppCompatActivity {
         List<DataModel> dataModels =
                 workWithCSV.getDataModelFromListSleepResult(listSleepResult, dateStart, dateEnd);
         // - Vika 23.03.22
+
+        // + Vika  25.03.22
+        // Выгрузка в таблицу xls данных
+        loadDataInTableXLS(dataModels);
+        // - Vika  25.03.22
     }
 
     //функция для получения Листа листов из файла
@@ -299,29 +304,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // функция для получения даты из строки
-    // + Вика 21.03
-    public static Date getStringToDate(String strDate) {
-
-        Date dateResult = new Date();
-
-        SimpleDateFormat format = new SimpleDateFormat();
-        format.applyPattern("d MMM  yyyy HH:mm");
-
-        try {
-            dateResult = format.parse(strDate);
-            return dateResult;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
-    // - Вика 21.03
-
-    public static void strToDatePr() throws ParseException{
-        Date date = new SimpleDateFormat("y-M-d H:m:s.S").parse("2017-9-11 13:1:28.9");
-    }
 
 
 
@@ -333,61 +315,37 @@ public class MainActivity extends AppCompatActivity {
 
         row.createCell(0).setCellValue(dataModel.getRecordCategory());
         row.createCell(1).setCellValue(dataModel.getRecordSubCategory());
-        row.createCell(2).setCellValue(dataModel.getStartDate());
+        //row.createCell(2).setCellValue(dataModel.getStartDate());
         //row.createCell(3).setCellValue(dataModel.getFinishDate());
+        Date sDate = dataModel.getFinishDate();
+        createDateXLS(workbook, row, 2, sDate);
         Date fDate = dataModel.getFinishDate();
         createDateXLS(workbook, row, 3, fDate);
         row.createCell(4).setCellValue(dataModel.getDetails());
     }
 
-    // заполняем список рандомными данными
-    // в реальных приложениях данные будут из БД или интернета
-    private static List<DataModel> fillData() {
-        List<DataModel> dataModels = new ArrayList<>();
-        Date fDate = getStringToDate("16.03.2022");
-        dataModels.add(new DataModel("Сон","","16-мар.-2022 17:03", fDate,""));
-        dataModels.add(new DataModel("Сон","","16-мар.-2022 09:23",fDate,""));
-        dataModels.add(new DataModel("Сон","","13-мар.-2022 11:06",fDate,""));
-
-        return dataModels;
-    }
-
     // - Вика 21.03
 
-    public void loadDataInTableXLS() {
+    public void loadDataInTableXLS(List<DataModel> dataList) {
 
-            // создание самого excel файла в памяти
-            HSSFWorkbook workbook = new HSSFWorkbook();
-            // создание листа с названием "Карта сна"
-            HSSFSheet sheet = workbook.createSheet("SleepMap");
+        // создание самого excel файла в памяти
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        // создание листа с названием "Карта сна"
+        HSSFSheet sheet = workbook.createSheet("SleepMap");
 
-            // заполняем список какими-то данными
-            List<DataModel> dataList = fillData();
+        // счетчик для строк
+        int rowNum = 0;
 
-            // счетчик для строк
-            int rowNum = 0;
-
-            // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
-            Row row = sheet.createRow(rowNum);
-
-            row.createCell(0).setCellValue("RecordCategory");
-            row.createCell(1).setCellValue("RecordSubCategory");
-            row.createCell(2).setCellValue("StartDate");
-            // row.createCell(3).setCellValue("EndDate");
-            Date fDate = getStringToDate("15.03.2022");
-            createDateXLS(workbook, row, 3, fDate);
-            row.createCell(4).setCellValue("Details");
-
-            // createDateXLS(workbook, row, 1,"StartDate"); //для работы с ячейкой дата пригодится
+        // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
+        //Row row = sheet.createRow(rowNum);
 
         String filename = "Apache_POI_.xls";
         // Записываем всё в файл
 
-            // заполняем лист данными
-            for (DataModel dataModel : dataList) {
-                createSheetHeader(workbook, sheet, ++rowNum, dataModel);
-            }
-
+        // заполняем лист данными
+        for (DataModel dataModel : dataList) {
+            createSheetHeader(workbook, sheet, rowNum++, dataModel);
+        }
 
             //File file = new File(getFilesDir(), filename);
             // записываем созданный в памяти Excel документ в файл
@@ -414,21 +372,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
 
             }
-            try {
-                readFromExcel(FILE_PATH, dataList);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             /*try {
-                // отрываем поток для записи
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(openFileOutput(filename, MODE_PRIVATE)));
-                // пишем данные
-                bw.write("Содержимое файла");
-                // закрываем поток
-                bw.close();
-                Log.d(LOG_TAG, "Файл записан");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                readFromExcel(FILE_PATH, dataList);
             } catch (IOException e) {
                 e.printStackTrace();
             }*/
