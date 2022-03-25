@@ -64,53 +64,11 @@ public class CSVFile {
         for (List<String> row : listSleepResult)
         {
 
-            Date dateUserStart1 = getUserDate(userStart); // получаем дату, которая увеличина на минуту (Ilya 25.03)
-            Date dateUserEnd1 = getUserDate(userEnd);
+            Date dateUserStart = getUserDate(userStart); // получаем дату, которая увеличина на минуту (Ilya 25.03)
+            Date dateUserEnd = getUserDate(userEnd);
 
-
-
-//            Date dateUserStart1 = getDateFromString(userStart,"dd.MM.yyyy");
-//
-//            Date dateUserEnd1 = getDateFromString(userEnd,"dd.MM.yyyy");
-
-
-
-
-            // Надо прибавить 1 секунду или 1 час к датам сверху, чтобы было
-            // 14.03.2022 01:00:00 или 14.03.2022 00:01:00
-            //Date newDate = new Date(dateUserEnd1.getTime() + TimeUnit.HOURS.toMillis(2)); // Add 2 hours
-
-            //Instant instant = dateUserEnd1.toInstant();
-
-            //Duration duration = Duration.ofHours( 8 );
-            //String instantHourLater = dateUserEnd1.toInstant().plus( Duration.ofHours( 1 ) ).toString();
-
-            //Date newDate = new Date(dateUserEnd1.getTime() + 2 * 3600*1000);
-
-           /* String myString =  "09:00 12/12/2014";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
-            Date myDateTime = null;
-
-            //Parse your string to SimpleDateFormat
-            try
-            {
-                myDateTime = simpleDateFormat.parse(myString);
-            }
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
-            System.out.println("This is the Actual Date:"+myDateTime);
-            Calendar cal = new GregorianCalendar();
-            cal.setTime(myDateTime);
-
-            //Adding 21 Hours to your Date
-            cal.add(Calendar.HOUR_OF_DAY, 21);
-            System.out.println("This is Hours Added Date:"+cal.getTime());*/
-
-            Date dateUserStart = getDateFromString("14.03.2022 00:01",formatOfDate);
-
-            Date dateUserEnd = getDateFromString("16.03.2022 00:01",formatOfDate);
+            // Date dateUserStart = getDateFromString("14.03.2022 00:01",formatOfDate);
+            // Date dateUserEnd = getDateFromString("16.03.2022 00:01",formatOfDate);
 
             String[] strarray = row.toArray(new String[0]);
 
