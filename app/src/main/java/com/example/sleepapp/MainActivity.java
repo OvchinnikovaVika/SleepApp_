@@ -12,7 +12,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.RequiresApi;
-import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.opencsv.CSVReader;
@@ -123,24 +122,26 @@ public class MainActivity extends AppCompatActivity {
 
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-        ViewPager viewPager = binding.viewPager;
-        viewPager.setAdapter(sectionsPagerAdapter);
-        TabLayout tabs = binding.tabs;
-        tabs.setupWithViewPager(viewPager);
-        FloatingActionButton fab = binding.fab;
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        //Октрыть файл
+        OpenFileDialog fileDialog = new OpenFileDialog(this)
+                //.setFilter(".*\\.csv")
+                .setOpenDialogListener(new OpenFileDialog.OpenDialogListener() {
+                    @Override
+                    public void OnSelectedFile(String fileName) {
+                        Toast.makeText(getApplicationContext(), fileName, Toast.LENGTH_LONG).show();
+                        result_info.setText(fileName);
+                    }
+                });
+        fileDialog.show();
+
 
         btnLoadFile.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+
+
 
                 // + Вика  19.03.2022 Проверка на незаполненные даты
                 if(fieldDateStart.getText().toString().trim().equals("")
@@ -239,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
     // Получение данных из файла пользователя BabyRecords.csv
     // Формируется список строк listSleepResult
     public void getDataFromFile() {
+
+        //OpenFileDialog failureDialog = OpenDialogListener;
 
         List<List<String>> listSleepResult = new ArrayList<>();
 

@@ -28,6 +28,9 @@ import java.util.*;
 public class OpenFileDialog extends AlertDialog.Builder {
 
     private String currentPath = Environment.getExternalStorageDirectory().getPath();
+    // путь - /storage/emulated/0, но ничего не показывает на телефоне только 3 папки
+    // пробовала Environment.getDataDirectory().getAbsolutePath()  /data, там пусто, не
+    // отображаются папки другие
     private List<File> files = new ArrayList<File>();
     private TextView title;
     private ListView listView;
@@ -126,7 +129,7 @@ public class OpenFileDialog extends AlertDialog.Builder {
         return this;
     }
 
-    public OpenFileDialog setOnlyFoldersFilter() {
+    /*public OpenFileDialog setOnlyFoldersFilter() {
         isOnlyFoldersFilter = true;
         filenameFilter = new FilenameFilter() {
 
@@ -137,7 +140,7 @@ public class OpenFileDialog extends AlertDialog.Builder {
             }
         };
         return this;
-    }
+    }*/
 
     public OpenFileDialog setOpenDialogListener(OpenDialogListener listener) {
         this.listener = listener;
