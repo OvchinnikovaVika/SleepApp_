@@ -136,10 +136,22 @@ public class MainActivity extends AppCompatActivity {
         fileDialog.show();
 
 
+        /*FileInputStream fIn = null;
+        try {
+            fIn = openFileInput("samplefile.txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader isr = new InputStreamReader(fIn);
+        char[] inputBuffer = new char[TESTSTRING.length()];
+        isr.read(inputBuffer);
+        String readString = new String(inputBuffer);*/
+
         btnLoadFile.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+
 
 
 
@@ -223,8 +235,72 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            //loadDataInTableXLS(); // Загрузить данные из файла в таблицу
+            // + Vika 26.03.2022
+            // Пытаюсь прочитать файл
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS)  + "/SampleFolder");
 
+            // Create the storage directory if it does not exist
+            if (! mediaStorageDir.exists()){
+                if (! mediaStorageDir.mkdirs()){
+                    Log.d("error", "failed to create directory");
+                }
+            }
+
+            final String TESTSTRING = new String("Hello Android");
+            File FILE_PATH = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_PICTURES);
+            //Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DCIM); // /storage/emulated/0/DCIM
+            ///storage/emulated/0/Pictures
+
+            //Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS)
+            // загрузки
+            String baseDir = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS).toString();
+            String fileName1 = "myFile.txt";
+            try {
+                // Not sure if the / is on the path or not
+                File f = new File(baseDir + File.separator + fileName1);
+                String data = "Test data";
+                FileOutputStream stream = new FileOutputStream(f);
+                stream.write(data.getBytes());
+                stream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+            // Not sure if the / is on the path or not
+            File f = new File(baseDir + File.separator + fileName1);
+
+            byte[] bytes = null;
+            FileInputStream fiStream = null;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(baseDir + File.separator + fileName1)))) {
+                String line;
+                String sleep = "Сон"; //son - sleep Vika
+
+                while ((line = reader.readLine()) != null) {
+
+                    String flName = line.substring(1, 4);
+
+
+                }
+            } catch (FileNotFoundException fileNotFoundException) {
+                fileNotFoundException.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+
+            try {
+                fiStream = new FileInputStream(f);
+                // You might not get the whole file, lookup File I/O examples for Java
+                fiStream.read(bytes);
+                fiStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //loadDataInTableXLS(); // Загрузить данные из файла в таблицу
+            // - Vika 26.03.2022
             return "result";
 
         }
