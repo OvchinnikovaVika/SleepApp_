@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Ilya 27.03  - ниже код для проверки разрешения для использования памяти
         if (PermissionUtils.hasPermissions(this)) {
-            tvPermission.setText("Разрешение получено!");
+            tvPermission.setText("Разрешение получено");
 
 
 

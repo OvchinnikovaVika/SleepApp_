@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 
 public class PermissionUtils {
     public static boolean hasPermissions(Context context) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return Environment.isExternalStorageManager();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
