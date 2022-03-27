@@ -2,6 +2,11 @@ package com.example.sleepapp;
 
 import static java.nio.charset.StandardCharsets.*;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,8 +16,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -23,6 +32,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,6 +92,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
     private ActivityMainBinding binding;
     private EditText fieldFile;
     private Button btnLoadFile;
@@ -94,10 +106,24 @@ public class MainActivity extends AppCompatActivity {
     private EditText fieldDateEnd;
     // - Вика  19.03.2022 Добавлены поля даты начала и даты окончания
 
+    private ImageView ivOpenedFile;
+    private static final int PERMISSION_STORAGE = 101;
+    private TextView tvPermission; // тестовое окно со статусом
+
+
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -116,67 +142,167 @@ public class MainActivity extends AppCompatActivity {
         fieldTable = findViewById(R.id.fieldTable);
         btnLoadData = findViewById(R.id.btnLoadData);
         result_info = findViewById(R.id.result_info);
-        // Инициализация элементов
-        // - Вика  19.03.2022 Добавление комментариев
+
+        tvPermission = findViewById(R.id.tvPermission);
+
+
+        //Ilya 27.03  - ниже код для проверки разрешения для использования памяти
+        if (PermissionUtils.hasPermissions(this)) {
+            tvPermission.setText("Разрешение получено!");
 
 
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
-        //Октрыть файл
-        OpenFileDialog fileDialog = new OpenFileDialog(this)
-                //.setFilter(".*\\.csv")
-                .setOpenDialogListener(new OpenFileDialog.OpenDialogListener() {
-                    @Override
-                    public void OnSelectedFile(String fileName) {
-                        Toast.makeText(getApplicationContext(), fileName, Toast.LENGTH_LONG).show();
-                        result_info.setText(fileName);
-                    }
-                });
-        fileDialog.show();
-
-
-        btnLoadFile.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onClick(View view) {
+        } else {
+            tvPermission.setText("Разрешение не предоставлено");
+            btnChangeFile.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (PermissionUtils.hasPermissions(MainActivity.this))
+                        return;
+                    PermissionUtils.requestPermissions(MainActivity.this, PERMISSION_STORAGE);
+                }
+            });
+        }
 
 
 
-                // + Вика  19.03.2022 Проверка на незаполненные даты
-                if(fieldDateStart.getText().toString().trim().equals("")
-                    || fieldDateEnd.getText().toString().trim().equals(""))
+
+            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+
+            //Октрыть файл
+            OpenFileDialog fileDialog = new OpenFileDialog(this)
+                    //.setFilter(".*\\.csv")
+                    .setOpenDialogListener(new OpenFileDialog.OpenDialogListener() {
+                        @Override
+                        public void OnSelectedFile(String fileName) {
+                            Toast.makeText(getApplicationContext(), fileName, Toast.LENGTH_LONG).show();
+                            result_info.setText(fileName);
+                        }
+                    });
+            fileDialog.show();
+
+
+            btnLoadFile.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onClick(View view) {
+
+
+
+                    // + Вика  19.03.2022 Проверка на незаполненные даты
+                    if(fieldDateStart.getText().toString().trim().equals("")
+                            || fieldDateEnd.getText().toString().trim().equals(""))
 
                         Toast.makeText(MainActivity.this,
                                 R.string.mesErrorNoDateStartEnd,
                                 Toast.LENGTH_SHORT).show();
-                else {
+                    else {
                         // + Вика  19.03.2022 Добавление комментариев
                         // Не заполнена строка с именем файла или датой начала или датой конца
                         if (fieldFile.getText().toString().trim().equals(""))
                             Toast.makeText(MainActivity.this,
                                     R.string.mesErrorNoFileText,
                                     Toast.LENGTH_SHORT).show();
-                        // - Вика  19.03.2022 Добавление комментариев
-                        // Не заполнена строка с именем файла
-                    else {
-
-                        String fileName = fieldFile.getText().toString(); // Получить имя файла
-                        String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
-
-                        // + Вика  21.03.2022 Обработка полей начало периода и окончание периода
-                        // Выделено в функцию
-                        // Надо перевести строки в даты, понять какой нужен формат,
-                        // формат - "16-мар.-2022 00:00" в файле, для сравнения 22.02.2022
+                            // - Вика  19.03.2022 Добавление комментариев
+                            // Не заполнена строка с именем файла
+                        else {
 
 
-                        new GetFileData().execute(fileName); // Считать данные из файла *.csv
-                        new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
+
+                            String fileName = fieldFile.getText().toString(); // Получить имя файла
+
+
+
+
+                            String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
+
+                            // + Вика  21.03.2022 Обработка полей начало периода и окончание периода
+                            // Выделено в функцию
+                            // Надо перевести строки в даты, понять какой нужен формат,
+                            // формат - "16-мар.-2022 00:00" в файле, для сравнения 22.02.2022
+
+
+                            new GetFileData().execute(fileName); // Считать данные из файла *.csv
+                            new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
+                        }
+                        // - Вика  19.03.2022 Проверка на незаполненные даты
                     }
-                    // - Вика  19.03.2022 Проверка на незаполненные даты
                 }
-            }
-        });
+            });
+
+
+
+
+
+
+
+        // Инициализация элементов
+        // - Вика  19.03.2022 Добавление комментариев
+
+
+
+//        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+//
+//        //Октрыть файл
+//        OpenFileDialog fileDialog = new OpenFileDialog(this)
+//                //.setFilter(".*\\.csv")
+//                .setOpenDialogListener(new OpenFileDialog.OpenDialogListener() {
+//                    @Override
+//                    public void OnSelectedFile(String fileName) {
+//                        Toast.makeText(getApplicationContext(), fileName, Toast.LENGTH_LONG).show();
+//                        result_info.setText(fileName);
+//                    }
+//                });
+//        fileDialog.show();
+//
+//
+//        btnLoadFile.setOnClickListener(new View.OnClickListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.O)
+//            @Override
+//            public void onClick(View view) {
+//
+//
+//
+//                // + Вика  19.03.2022 Проверка на незаполненные даты
+//                if(fieldDateStart.getText().toString().trim().equals("")
+//                    || fieldDateEnd.getText().toString().trim().equals(""))
+//
+//                        Toast.makeText(MainActivity.this,
+//                                R.string.mesErrorNoDateStartEnd,
+//                                Toast.LENGTH_SHORT).show();
+//                else {
+//                        // + Вика  19.03.2022 Добавление комментариев
+//                        // Не заполнена строка с именем файла или датой начала или датой конца
+//                        if (fieldFile.getText().toString().trim().equals(""))
+//                            Toast.makeText(MainActivity.this,
+//                                    R.string.mesErrorNoFileText,
+//                                    Toast.LENGTH_SHORT).show();
+//                        // - Вика  19.03.2022 Добавление комментариев
+//                        // Не заполнена строка с именем файла
+//                    else {
+//
+//
+//
+//                        String fileName = fieldFile.getText().toString(); // Получить имя файла
+//
+//
+//
+//
+//                        String fileTable = fieldTable.getText().toString(); // Получить имя файла Таблицы
+//
+//                        // + Вика  21.03.2022 Обработка полей начало периода и окончание периода
+//                        // Выделено в функцию
+//                        // Надо перевести строки в даты, понять какой нужен формат,
+//                        // формат - "16-мар.-2022 00:00" в файле, для сравнения 22.02.2022
+//
+//
+//                        new GetFileData().execute(fileName); // Считать данные из файла *.csv
+//                        new LoadDataInTable().execute(fileTable); // Загрузить данные в файл *.xls
+//                    }
+//                    // - Вика  19.03.2022 Проверка на незаполненные даты
+//                }
+//            }
+//        });
 
         //alt+Enter на EditText чтобы импортировать класс
     }
@@ -445,6 +571,34 @@ public class MainActivity extends AppCompatActivity {
 
     }
     // - Vika 21/03/22
+
+
+    //Ilya 27.03 методы проверки результата (для разных API)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == PERMISSION_STORAGE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (PermissionUtils.hasPermissions(this)) {
+                    tvPermission.setText("Разрешение получено");
+                } else {
+                    tvPermission.setText("Разрешение не предоставлено");
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                                     @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                tvPermission.setText("Разрешение получено");
+            } else {
+                tvPermission.setText("Разрешение не предоставлено");
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 }
 
 

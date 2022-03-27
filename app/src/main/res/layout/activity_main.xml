@@ -158,5 +158,12 @@
             tools:layout_editor_absoluteX="182dp"
             tools:layout_editor_absoluteY="561dp" />
 
+        <TextView
+            android:id="@+id/tvPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#D58585"
+            android:text="Проверка на разрешение(тест)" />
+
     </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
