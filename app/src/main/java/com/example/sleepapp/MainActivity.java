@@ -369,20 +369,43 @@ public class MainActivity extends AppCompatActivity {
         //OpenFileDialog failureDialog = OpenDialogListener;
 
         List<List<String>> listSleepResult = new ArrayList<>();
+        List<List<String>> listFeedingResult = new ArrayList<>();
+        List<List<String>> listLeisureResult = new ArrayList<>();
+        List<List<String>> listFoodResult = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(getAssets().open("BabyRecords.csv")))) {
 
             String line;
-            String sleep = "Сон"; //son - sleep Vika
+            String sleep = "Сон"; //son - sleep Vika 1 вариант
+            String feeding = "Кор"; //2 вариант
+            String leisure = "Дос"; //3 вариант
+            String game = "Игры"; //для 3 варианта
+            String gvRight = "Правая"; //для 3 варианта
+            String gvLeft = "Левая";
+            String food = "Еда";
 
             while ((line = reader.readLine()) != null) {
 
                 String flName = line.substring(1, 4);
+                //String feedingName = line.substring(13, 19);
+                //String foodName = line.substring(13, 16);
+                //String leisureName = line.substring(9, 13);
+                //проверка на null feedingName and foodName, leisureName
 
                 if (flName.equals(sleep)) //son - sleep Vika
                     listSleepResult.add(Collections.singletonList(line));
+                else if(flName.equals(feeding))
+                    //&& feedingName.equals(gvRight) || feedingName.equals(gvLeft))
+                    listFeedingResult.add(Collections.singletonList(line));
+                else if(flName.equals(feeding))
+                        //&& foodName.equals(food))
+                    listFoodResult.add(Collections.singletonList(line));
+                else if(flName.equals(leisure))
+                        //&& leisureName.equals(game))
+                    listLeisureResult.add(Collections.singletonList(line));
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -397,7 +420,8 @@ public class MainActivity extends AppCompatActivity {
         // Появился новый класс CSVFile
         CSVFile workWithCSV = new CSVFile();
         List<DataModel> dataModels =
-                workWithCSV.getDataModelFromListSleepResult(listSleepResult, dateStart, dateEnd);
+                workWithCSV.getDataModelFromListSleepResult(listSleepResult, listFeedingResult,
+                        listFoodResult, listLeisureResult, dateStart, dateEnd);
         // - Vika 23.03.22
 
         // + Vika  25.03.22
@@ -445,11 +469,13 @@ public class MainActivity extends AppCompatActivity {
         row.createCell(1).setCellValue(dataModel.getRecordSubCategory());
         //row.createCell(2).setCellValue(dataModel.getStartDate());
         //row.createCell(3).setCellValue(dataModel.getFinishDate());
-        Date sDate = dataModel.getFinishDate();
-        createDateXLS(workbook, row, 2, sDate);
+        Date sDate = dataModel.getStartDate();
+        createDateXLS(workbook, row, 2, sDate,false);
         Date fDate = dataModel.getFinishDate();
-        createDateXLS(workbook, row, 3, fDate);
-        row.createCell(4).setCellValue(dataModel.getDetails());
+        createDateXLS(workbook, row, 3, fDate,false);
+        createDateXLS(workbook, row, 4, dataModel.getStartDate(),true);// только время
+        createDateXLS(workbook, row, 5, dataModel.getFinishDate(),true); // только время
+        row.createCell(6).setCellValue(dataModel.getDetails());
     }
 
     // - Вика 21.03
@@ -509,16 +535,28 @@ public class MainActivity extends AppCompatActivity {
 
     // Создание ячейки - даты в файле xls
     // + Vika 21/03/22
-    private static void createDateXLS(HSSFWorkbook workbook, Row row, int CellNum, Date dateInCell) {
+    private static void createDateXLS(HSSFWorkbook workbook, Row row, int CellNum, Date dateInCell, boolean onlyTime) {
 
-        HSSFCell dateXLS = (HSSFCell) row.createCell(CellNum);
+        if (onlyTime) {
+            HSSFCell dateXLS = (HSSFCell) row.createCell(CellNum);
 
-        HSSFDataFormat format = workbook.createDataFormat();
-        HSSFCellStyle dateStyle = workbook.createCellStyle();
-        dateStyle.setDataFormat(format.getFormat("m/d/yy h:mm"));
+            HSSFDataFormat format = workbook.createDataFormat();
+            HSSFCellStyle dateStyle = workbook.createCellStyle();
+            dateStyle.setDataFormat(format.getFormat("hh:mm"));
 
-        dateXLS.setCellValue(dateInCell);//подставим значение
-        dateXLS.setCellStyle(dateStyle);
+            dateXLS.setCellValue(dateInCell);//подставим значение
+            dateXLS.setCellStyle(dateStyle);
+        }
+        else{
+            HSSFCell dateXLS = (HSSFCell) row.createCell(CellNum);
+
+            HSSFDataFormat format = workbook.createDataFormat();
+            HSSFCellStyle dateStyle = workbook.createCellStyle();
+            dateStyle.setDataFormat(format.getFormat("m/d/yy h:mm"));
+
+            dateXLS.setCellValue(dateInCell);//подставим значение
+            dateXLS.setCellStyle(dateStyle);
+        }
     }
     // - Vika 21/03/22
 
